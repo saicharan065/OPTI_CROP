@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section style="background:linear-gradient(135deg,#1a4731 0%,#2d7a4f 60%,#4aad73 100%);color:#fff;padding:5rem 2rem 4rem;position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22400%22><circle cx=%22300%22 cy=%22100%22 r=%22200%22 fill=%22rgba(255,255,255,.04)%22/><circle cx=%2250%22 cy=%22300%22 r=%22150%22 fill=%22rgba(255,255,255,.03)%22/></svg>');"></div>
+  <div class="container position-relative">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-6">
+        <div class="tag mb-3" style="background:rgba(255,255,255,.15);color:#fff;">🤖 AI-Powered Agriculture</div>
+        <h1 style="font-family:'Sora',sans-serif;font-size:clamp(2rem,4vw,3rem);line-height:1.2;margin-bottom:1.2rem;">
+          Smart Crop Recommendations<br>for Maximum Yield
+        </h1>
+        <p style="opacity:.85;font-size:1.05rem;line-height:1.7;margin-bottom:2rem;">
+          OptiCrop leverages machine learning to analyze soil nutrients, climate, and environmental 
+          conditions — delivering precise, data-driven crop recommendations to help farmers 
+          optimize production and resource efficiency.
+        </p>
+        <div class="d-flex gap-3 flex-wrap">
+          <a href="/predict" class="btn-oc" style="background:#fff;color:#1a4731;font-size:1rem;">
+            <i class="bi bi-stars"></i> Get Crop Recommendation
+          </a>
+          <a href="/suitability" class="btn-oc-outline" style="border-color:rgba(255,255,255,.5);color:#fff;">
+            <i class="bi bi-patch-check"></i> Check Suitability
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="row g-3">
+          {% set stats = [
+            ('92.57%','Model Accuracy','bi-graph-up-arrow','Random Forest'),
+            ('23','Crop Types','bi-flower1','Supported'),
+            ('7','Parameters','bi-sliders','Soil & Climate'),
+            ('2,760','Training Records','bi-database','Dataset Size'),
+          ] %}
+          {% for val, label, icon, sub in stats %}
+          <div class="col-6">
+            <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:1.3rem;backdrop-filter:blur(8px);">
+              <i class="bi {{ icon }}" style="font-size:1.5rem;opacity:.8;"></i>
+              <div style="font-family:'Sora',sans-serif;font-size:1.8rem;font-weight:700;margin:.3rem 0 0;">{{ val }}</div>
+              <div style="font-size:.85rem;opacity:.8;">{{ label }}</div>
+              <div style="font-size:.75rem;opacity:.55;margin-top:2px;">{{ sub }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Scenarios -->
+<section class="container py-5">
+  <div class="text-center mb-4">
+    <div class="section-label">Use Cases</div>
+    <h2 style="font-family:'Sora',sans-serif;font-size:1.6rem;color:var(--green-dark);">Three Intelligent Scenarios</h2>
+  </div>
+  <div class="row g-4">
+    {% set scenarios = [
+      ('bi-person-check','Scenario 1','Smart Crop Recommendation',
+       'Enter your soil NPK values, temperature, humidity, pH, and rainfall. OptiCrop instantly recommends the most suitable crop for maximum yield.',
+       '/predict','Get Recommendation','#e8f5ee','#1a4731'),
+      ('bi-patch-check','Scenario 2','Crop Suitability Assessment',
+       'Already planning to grow a specific crop? Evaluate whether your current soil and climate conditions are compatible and get an environmental suitability score.',
+       '/suitability','Check Suitability','#fff8e8','#7a4e00'),
+      ('bi-bar-chart-line','Scenario 3','Research & Policy Planning',
+       'Explore crop-environment relationships, model performance metrics, feature importances, and cluster analysis for data-driven agricultural strategy.',
+       '/research','View Analytics','#eaf4fb','#1a4a6b'),
+    ] %}
+    {% for icon, badge, title, desc, url, cta, bg, color in scenarios %}
+    <div class="col-md-4">
+      <div class="card-oc h-100" style="background:{{ bg }};border-color:transparent;">
+        <div style="width:48px;height:48px;background:{{ color }};border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+          <i class="bi {{ icon }}" style="color:#fff;font-size:1.3rem;"></i>
+        </div>
+        <div class="tag mb-2" style="background:{{ color }};color:#fff;font-size:.72rem;">{{ badge }}</div>
+        <h5 style="font-family:'Sora',sans-serif;color:{{ color }};margin-bottom:.6rem;">{{ title }}</h5>
+        <p style="font-size:.9rem;color:var(--text-muted);line-height:1.6;flex:1;">{{ desc }}</p>
+        <a href="{{ url }}" style="color:{{ color }};font-weight:600;font-size:.9rem;text-decoration:none;display:inline-flex;align-items:center;gap:5px;margin-top:1rem;">
+          {{ cta }} <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Model Comparison -->
+<section style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:3rem 0;">
+  <div class="container">
+    <div class="text-center mb-4">
+      <div class="section-label">ML Pipeline</div>
+      <h2 style="font-family:'Sora',sans-serif;font-size:1.6rem;color:var(--green-dark);">Model Performance Comparison</h2>
+      <p style="color:var(--text-muted);font-size:.9rem;">Four algorithms evaluated — best model deployed for predictions</p>
+    </div>
+    <div class="row g-3">
+      {% set models = meta.model_metrics %}
+      {% for name, m in models.items() if name != 'best_model' %}
+      {% set is_best = (name == meta.best_model) %}
+      <div class="col-md-6 col-lg-3">
+        <div class="card-oc" style="{% if is_best %}border-color:var(--green-light);background:var(--green-pale);{% endif %}position:relative;">
+          {% if is_best %}
+          <div style="position:absolute;top:-1px;right:12px;background:var(--green-mid);color:#fff;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:0 0 6px 6px;">BEST</div>
+          {% endif %}
+          <div style="font-weight:700;font-size:.95rem;margin-bottom:1rem;color:var(--green-dark);">{{ name }}</div>
+          <div class="section-label">Accuracy</div>
+          <div style="font-size:1.4rem;font-weight:700;color:{% if is_best %}var(--green-mid){% else %}var(--text){% endif %};">{{ m.accuracy }}%</div>
+          <div class="oc-progress mt-1 mb-2">
+            <div class="oc-progress-bar" style="width:{{ m.accuracy }}%;background:{% if is_best %}var(--green-mid){% else %}var(--border){% endif %};"></div>
+          </div>
+          <div class="d-flex justify-content-between" style="font-size:.8rem;color:var(--text-muted);">
+            <span>F1: <strong>{{ m.f1 }}%</strong></span>
+            <span>CV: <strong>{{ m.cv_score }}%</strong></span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Parameters -->
+<section class="container py-5">
+  <div class="row g-4 align-items-center">
+    <div class="col-lg-5">
+      <div class="section-label">Input Parameters</div>
+      <h2 style="font-family:'Sora',sans-serif;font-size:1.6rem;color:var(--green-dark);margin-bottom:1rem;">7 Key Agricultural Factors</h2>
+      <p style="color:var(--text-muted);line-height:1.7;">OptiCrop analyzes these critical soil and environmental parameters to generate intelligent, context-aware crop recommendations tailored to your specific conditions.</p>
+      <a href="/predict" class="btn-oc mt-2"><i class="bi bi-arrow-right-circle"></i> Try It Now</a>
+    </div>
+    <div class="col-lg-7">
+      <div class="row g-3">
+        {% set params = [
+          ('🧪','Nitrogen (N)','Macro-nutrient for leaf growth','mg/kg'),
+          ('🧪','Phosphorous (P)','Root development & flowering','mg/kg'),
+          ('🧪','Potassium (K)','Disease resistance & fruiting','mg/kg'),
+          ('🌡️','Temperature','Optimal growing range','°C'),
+          ('💧','Humidity','Atmospheric moisture level','%'),
+          ('⚗️','pH Level','Soil acidity / alkalinity','0–14'),
+          ('🌧️','Rainfall','Annual precipitation','mm'),
+        ] %}
+        {% for icon, name, desc, unit in params %}
+        <div class="col-sm-6">
+          <div style="display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;">
+            <span style="font-size:1.4rem;">{{ icon }}</span>
+            <div>
+              <div style="font-weight:600;font-size:.9rem;">{{ name }}</div>
+              <div style="font-size:.8rem;color:var(--text-muted);">{{ desc }}</div>
+              <div class="tag mt-1" style="font-size:.7rem;">{{ unit }}</div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

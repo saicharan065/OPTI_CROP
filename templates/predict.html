@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block title %}Crop Recommendation{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <div class="d-flex align-items-center gap-3">
+      <div style="width:48px;height:48px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">🌱</div>
+      <div>
+        <h1>Smart Crop Recommendation</h1>
+        <p>Enter your field's soil & climate data to get the best crop suggestion</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-4">
+  <div class="row g-4">
+
+    <!-- Input Form -->
+    <div class="col-lg-5">
+      <div class="card-oc">
+        <div class="section-label mb-3">Scenario 1 — Farmer Input</div>
+        <form method="POST" id="predictForm">
+
+          <!-- NPK -->
+          <div class="mb-3">
+            <div class="section-label" style="color:var(--soil);">🧪 Soil Nutrients</div>
+            <div class="row g-2 mt-1">
+              <div class="col-4">
+                <label class="form-label">Nitrogen (N)</label>
+                <div class="input-icon-wrap">
+                  <i class="bi bi-droplet-half"></i>
+                  <input type="number" class="form-control" name="nitrogen" step="0.1" min="0" max="200"
+                         value="{{ result.inputs.nitrogen if result and not result.error else '' }}"
+                         placeholder="e.g. 80" required>
+                </div>
+                <div style="font-size:.72rem;color:var(--text-muted);margin-top:3px;">mg/kg · 0–200</div>
+              </div>
+              <div class="col-4">
+                <label class="form-label">Phosphorous (P)</label>
+                <div class="input-icon-wrap">
+                  <i class="bi bi-droplet-half"></i>
+                  <input type="number" class="form-control" name="phosphorous" step="0.1" min="0" max="200"
+                         value="{{ result.inputs.phosphorous if result and not result.error else '' }}"
+                         placeholder="e.g. 40" required>
+                </div>
+                <div style="font-size:.72rem;color:var(--text-muted);margin-top:3px;">mg/kg · 0–200</div>
+              </div>
+              <div class="col-4">
+                <label class="form-label">Potassium (K)</label>
+                <div class="input-icon-wrap">
+                  <i class="bi bi-droplet-half"></i>
+                  <input type="number" class="form-control" name="potassium" step="0.1" min="0" max="220"
+                         value="{{ result.inputs.potassium if result and not result.error else '' }}"
+                         placeholder="e.g. 40" required>
+                </div>
+                <div style="font-size:.72rem;color:var(--text-muted);margin-top:3px;">mg/kg · 0–220</div>
+              </div>
+            </div>
+          </div>
+
+          <hr class="divider">
+
+          <!-- Climate -->
+          <div class="mb-3">
+            <div class="section-label" style="color:var(--sky);">🌦️ Climate Conditions</div>
+            <div class="row g-2 mt-1">
+              <div class="col-6">
+                <label class="form-label">Temperature</label>
+                <div class="input-icon-wrap">
+                  <i class="bi bi-thermometer-half"></i>
+                  <input type="number" class="form-control" name="temperature" step="0.1" min="-10" max="50"
+                         value="{{ result.inputs.temperature if result and not result.error else '' }}"
+                         placeholder="e.g. 25" required>
+                </div>
+                <div style="font-size:.72rem;color:var(--text-muted);margin-top:3px;">°C · -10 to 50</div>
+              </div>
+              <div class="col-6">
+                <label class="form-label">Humidity</label>
+                <div class="input-icon-wrap">
+                  <i class="bi bi-moisture"></i>
+                  <input type="number" class="form-control" name="humidity" step="0.1" min="0" max="100"
+                         value="{{ result.inputs.humidity if result and not result.error else '' }}"
+                         placeholder="e.g. 70" required>
+                </div>
+                <div style="font-size:.72rem;color:var(--text-muted);margin-top:3px;">% · 0–100</div>
+              </div>
+              <div class="col-6">
+                <label class="form-label">pH Level</label>
+                <div class="input-icon-wrap">
+                  <i class="bi bi-flask"></i>
+                  <input type="number" class="form-control" name="ph" step="0.01" min="0" max="14"
+                         value="{{ result.inputs.ph if result and not result.error else '' }}"
+                         placeholder="e.g. 6.5" required>
+                </div>
+                <div style="font-size:.72rem;color:var(--text-muted);margin-top:3px;">0–14 scale</div>
+              </div>
+              <div class="col-6">
+                <label class="form-label">Rainfall</label>
+                <div class="input-icon-wrap">
+                  <i class="bi bi-cloud-rain"></i>
+                  <input type="number" class="form-control" name="rainfall" step="0.1" min="0" max="500"
+                         value="{{ result.inputs.rainfall if result and not result.error else '' }}"
+                         placeholder="e.g. 100" required>
+                </div>
+                <div style="font-size:.72rem;color:var(--text-muted);margin-top:3px;">mm · annual</div>
+              </div>
+            </div>
+          </div>
+
+          <hr class="divider">
+
+          <button type="submit" class="btn-oc w-100" id="submitBtn">
+            <span id="btnText"><i class="bi bi-stars"></i> Recommend Best Crop</span>
+            <span class="spinner-oc" id="spinner"></span>
+          </button>
+
+          <!-- Quick fill buttons -->
+          <div class="mt-3">
+            <div class="section-label mb-2">Quick Fill Presets</div>
+            <div class="d-flex flex-wrap gap-2">
+              {% set presets = [
+                ('Rice',    80,45,45,25,80,6.5,200),
+                ('Wheat',   80,50,50,18,60,6.8,75),
+                ('Maize',   85,48,52,24,65,6.5,75),
+                ('Coffee',  100,18,35,22,90,5.0,200),
+                ('Cotton',  120,45,20,29,65,7.0,85),
+              ] %}
+              {% for name,n,p,k,t,h,ph,r in presets %}
+              <button type="button" class="btn-oc-outline" style="padding:.3rem .7rem;font-size:.78rem;"
+                onclick="fillPreset({{ n }},{{ p }},{{ k }},{{ t }},{{ h }},{{ ph }},{{ r }})">
+                {{ name }}
+              </button>
+              {% endfor %}
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Result Panel -->
+    <div class="col-lg-7">
+      {% if result %}
+        {% if result.error %}
+        <div class="alert-oc alert-danger-oc">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <div><strong>Error:</strong> {{ result.error }}</div>
+        </div>
+        {% else %}
+        <!-- Main recommendation -->
+        <div class="result-hero mb-4">
+          <div class="result-icon">{{ result.icon }}</div>
+          <div class="result-crop">{{ result.crop }}</div>
+          <div class="result-conf">Recommended with <strong>{{ result.confidence }}%</strong> confidence</div>
+          <div class="mt-3">
+            <a href="/suitability?crop={{ result.crop }}" style="color:rgba(255,255,255,.8);font-size:.85rem;text-decoration:none;">
+              <i class="bi bi-patch-check"></i> Check full suitability for this crop →
+            </a>
+          </div>
+        </div>
+
+        <!-- Tip -->
+        <div class="alert-oc alert-success-oc mb-4">
+          <i class="bi bi-lightbulb-fill"></i>
+          <div><strong>Farming Tip:</strong> {{ result.tip }}</div>
+        </div>
+
+        <!-- Top 3 -->
+        <div class="card-oc mb-4">
+          <div class="section-label mb-3">Top 3 Predicted Crops</div>
+          {% for crop, prob in result.top3 %}
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div style="width:28px;height:28px;background:var(--green-pale);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:var(--green-dark);flex-shrink:0;">{{ loop.index }}</div>
+            <div style="flex:1;">
+              <div style="font-weight:600;font-size:.95rem;">{{ crop }}</div>
+              <div class="oc-progress mt-1">
+                <div class="oc-progress-bar" style="width:{{ prob }}%;background:{% if loop.index==1 %}var(--green-mid){% elif loop.index==2 %}var(--amber){% else %}var(--sky){% endif %};"></div>
+              </div>
+            </div>
+            <div class="badge-prob">{{ prob }}%</div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Input summary -->
+        <div class="card-oc">
+          <div class="section-label mb-3">Input Summary</div>
+          <div class="row g-2">
+            {% set icons = {'nitrogen':'🧪','phosphorous':'🧪','potassium':'🧪','temperature':'🌡️','humidity':'💧','ph':'⚗️','rainfall':'🌧️'} %}
+            {% set units = {'nitrogen':'mg/kg','phosphorous':'mg/kg','potassium':'mg/kg','temperature':'°C','humidity':'%','ph':'pH','rainfall':'mm'} %}
+            {% for k, v in result.inputs.items() %}
+            <div class="col-6 col-sm-4">
+              <div class="metric-card">
+                <div class="metric-label">{{ icons[k] }} {{ k|capitalize }}</div>
+                <div class="metric-value" style="font-size:1.3rem;">{{ "%.1f"|format(v) }}</div>
+                <div class="metric-sub">{{ units[k] }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+      {% else %}
+      <!-- Empty state -->
+      <div class="card-oc text-center" style="padding:3rem 2rem;">
+        <div style="font-size:4rem;margin-bottom:1rem;">🌾</div>
+        <h5 style="color:var(--green-dark);font-family:'Sora',sans-serif;">Ready for Analysis</h5>
+        <p style="color:var(--text-muted);font-size:.9rem;max-width:320px;margin:0 auto;">
+          Fill in your soil nutrient levels and climate conditions on the left, then click <strong>Recommend Best Crop</strong>.
+        </p>
+        <hr class="divider">
+        <div class="section-label mb-2">Supported Crops</div>
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+          {% for crop in meta.crops %}
+          <span class="tag">{{ crop }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function fillPreset(n,p,k,t,h,ph,r){
+  document.querySelector('[name=nitrogen]').value = n;
+  document.querySelector('[name=phosphorous]').value = p;
+  document.querySelector('[name=potassium]').value = k;
+  document.querySelector('[name=temperature]').value = t;
+  document.querySelector('[name=humidity]').value = h;
+  document.querySelector('[name=ph]').value = ph;
+  document.querySelector('[name=rainfall]').value = r;
+}
+document.getElementById('predictForm').addEventListener('submit', function(){
+  document.getElementById('btnText').style.display='none';
+  document.getElementById('spinner').style.display='inline-block';
+});
+// Animate progress bars on load
+window.addEventListener('load', function(){
+  document.querySelectorAll('.oc-progress-bar').forEach(function(bar){
+    const w = bar.style.width;
+    bar.style.width = '0';
+    setTimeout(()=>{ bar.style.width = w; }, 100);
+  });
+});
+</script>
+{% endblock %}

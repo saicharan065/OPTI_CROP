@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% block title %}Crop Suitability{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <div class="d-flex align-items-center gap-3">
+      <div style="width:48px;height:48px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">✅</div>
+      <div>
+        <h1>Crop Suitability Assessment</h1>
+        <p>Evaluate if your soil & climate match a specific crop's requirements</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-4">
+  <div class="row g-4">
+
+    <!-- Form -->
+    <div class="col-lg-5">
+      <div class="card-oc">
+        <div class="section-label mb-3">Scenario 2 — Suitability Check</div>
+        <form method="POST" id="suitForm">
+
+          <!-- Crop selection -->
+          <div class="mb-3">
+            <label class="form-label">Select Crop to Evaluate</label>
+            <select class="form-select" name="crop" required>
+              <option value="" disabled {% if not result %}selected{% endif %}>Choose a crop…</option>
+              {% for crop in crops %}
+              <option value="{{ crop }}" {% if result and result.crop==crop %}selected{% endif %}>{{ crop }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <hr class="divider">
+
+          <!-- NPK -->
+          <div class="section-label" style="color:var(--soil);">🧪 Soil Nutrients</div>
+          <div class="row g-2 mt-1 mb-3">
+            <div class="col-4">
+              <label class="form-label">Nitrogen</label>
+              <input type="number" class="form-control" name="nitrogen" step="0.1" min="0" max="200"
+                     placeholder="N" required>
+              <div style="font-size:.72rem;color:var(--text-muted);margin-top:2px;">mg/kg</div>
+            </div>
+            <div class="col-4">
+              <label class="form-label">Phosphorous</label>
+              <input type="number" class="form-control" name="phosphorous" step="0.1" min="0" max="200"
+                     placeholder="P" required>
+              <div style="font-size:.72rem;color:var(--text-muted);margin-top:2px;">mg/kg</div>
+            </div>
+            <div class="col-4">
+              <label class="form-label">Potassium</label>
+              <input type="number" class="form-control" name="potassium" step="0.1" min="0" max="220"
+                     placeholder="K" required>
+              <div style="font-size:.72rem;color:var(--text-muted);margin-top:2px;">mg/kg</div>
+            </div>
+          </div>
+
+          <!-- Climate -->
+          <div class="section-label" style="color:var(--sky);">🌦️ Climate Conditions</div>
+          <div class="row g-2 mt-1 mb-3">
+            <div class="col-6">
+              <label class="form-label">Temperature (°C)</label>
+              <input type="number" class="form-control" name="temperature" step="0.1" min="-10" max="50"
+                     placeholder="e.g. 25" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Humidity (%)</label>
+              <input type="number" class="form-control" name="humidity" step="0.1" min="0" max="100"
+                     placeholder="e.g. 70" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label">pH Level</label>
+              <input type="number" class="form-control" name="ph" step="0.01" min="0" max="14"
+                     placeholder="e.g. 6.5" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Rainfall (mm)</label>
+              <input type="number" class="form-control" name="rainfall" step="0.1" min="0" max="500"
+                     placeholder="e.g. 100" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-oc w-100">
+            <i class="bi bi-patch-check"></i> Assess Suitability
+          </button>
+        </form>
+      </div>
+
+      <!-- Ideal ranges reference -->
+      <div class="card-oc mt-4" id="rangeCard" style="display:none;">
+        <div class="section-label mb-3">📋 Ideal Ranges for <span id="rangeLabel">—</span></div>
+        <table class="table table-sm table-oc mb-0">
+          <thead><tr><th>Parameter</th><th>Min</th><th>Max</th></tr></thead>
+          <tbody id="rangeBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Result Panel -->
+    <div class="col-lg-7">
+      {% if result %}
+        {% if result.error %}
+        <div class="alert-oc alert-danger-oc">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <div><strong>Error:</strong> {{ result.error }}</div>
+        </div>
+        {% else %}
+
+        <!-- Suitability score -->
+        <div class="card-oc mb-4" style="{% if result.suitability >= 80 %}background:var(--green-pale);border-color:var(--green-light);{% elif result.suitability >= 60 %}background:var(--amber-pale);border-color:var(--amber);{% else %}background:#fdeaea;border-color:#e88080;{% endif %}">
+          <div class="row align-items-center g-3">
+            <div class="col-auto">
+              <div class="gauge-ring">
+                <svg width="140" height="140" viewBox="0 0 140 140">
+                  <circle cx="70" cy="70" r="54" fill="none" stroke="#e0e0e0" stroke-width="12"/>
+                  <circle cx="70" cy="70" r="54" fill="none"
+                    stroke="{% if result.suitability >= 80 %}#2d7a4f{% elif result.suitability >= 60 %}#e8a020{% else %}#c0392b{% endif %}"
+                    stroke-width="12"
+                    stroke-dasharray="{{ (result.suitability / 100 * 339.3)|round(1) }} 339.3"
+                    stroke-linecap="round"/>
+                </svg>
+                <div class="gauge-label">
+                  <div class="gauge-pct">{{ result.suitability }}%</div>
+                  <div class="gauge-txt">{{ result.level }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div style="font-size:2rem;">{{ result.icon }}</div>
+              <h4 style="font-family:'Sora',sans-serif;margin:.3rem 0;">{{ result.crop }}</h4>
+              <div class="tag" style="{% if result.suitability >= 80 %}background:#2d7a4f;color:#fff;{% elif result.suitability >= 60 %}background:#e8a020;color:#fff;{% else %}background:#c0392b;color:#fff;{% endif %}">
+                {{ result.level }} Suitability
+              </div>
+              <p style="font-size:.88rem;color:var(--text-muted);margin-top:.6rem;">{{ result.tip }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Issues / Recommendations -->
+        {% if result.issues %}
+        <div class="card-oc mb-4">
+          <div class="section-label mb-3">⚠️ Parameter Gaps Detected</div>
+          {% for issue in result.issues %}
+          <div class="alert-oc alert-warn-oc mb-2">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>{{ issue }}</span>
+          </div>
+          {% endfor %}
+          <hr class="divider">
+          <div class="alert-oc alert-success-oc">
+            <i class="bi bi-lightbulb-fill"></i>
+            <div>Adjust the flagged parameters through fertilization, irrigation, or liming to improve suitability score.</div>
+          </div>
+        </div>
+        {% else %}
+        <div class="alert-oc alert-success-oc mb-4">
+          <i class="bi bi-check-circle-fill"></i>
+          <div><strong>All parameters within ideal range!</strong> Your field conditions are perfectly matched for {{ result.crop }}.</div>
+        </div>
+        {% endif %}
+
+        <!-- Verdict -->
+        <div class="card-oc">
+          <div class="section-label mb-3">📊 Assessment Summary</div>
+          <div class="row g-3 text-center">
+            <div class="col-4">
+              <div class="metric-card">
+                <div class="metric-label">Suitability</div>
+                <div class="metric-value">{{ result.suitability }}%</div>
+                <div class="metric-sub">{{ result.level }}</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="metric-card">
+                <div class="metric-label">Issues Found</div>
+                <div class="metric-value" style="color:{% if result.issues|length == 0 %}var(--green-mid){% else %}var(--amber){% endif %};">{{ result.issues|length }}</div>
+                <div class="metric-sub">parameter gaps</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="metric-card">
+                <div class="metric-label">Recommendation</div>
+                <div class="metric-value" style="font-size:1.1rem;">
+                  {% if result.suitability >= 80 %}✅{% elif result.suitability >= 60 %}⚡{% else %}❌{% endif %}
+                </div>
+                <div class="metric-sub">{% if result.suitability >= 80 %}Proceed{% elif result.suitability >= 60 %}Adjust{% else %}Reconsider{% endif %}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+      {% else %}
+      <div class="card-oc text-center" style="padding:3rem 2rem;">
+        <div style="font-size:4rem;margin-bottom:1rem;">🔬</div>
+        <h5 style="color:var(--green-dark);font-family:'Sora',sans-serif;">Environmental Assessment</h5>
+        <p style="color:var(--text-muted);font-size:.9rem;max-width:340px;margin:0 auto;">
+          Select a target crop and enter your field conditions. OptiCrop will assess 
+          each parameter against ideal ranges and provide a compatibility score.
+        </p>
+        <hr class="divider">
+        <div class="row g-2 text-start mt-2">
+          {% set levels = [('✅ Excellent','80–100%','All parameters within ideal range'),
+                           ('⚡ Good','60–80%','Minor adjustments recommended'),
+                           ('⚠️ Moderate','40–60%','Significant adjustments needed'),
+                           ('❌ Poor','0–40%','Conditions incompatible — consider another crop')] %}
+          {% for icon, range, desc in levels %}
+          <div class="col-12">
+            <div style="display:flex;gap:10px;font-size:.85rem;">
+              <span style="flex-shrink:0;width:90px;font-weight:600;">{{ icon }}</span>
+              <span style="color:var(--text-muted);">{{ range }} — {{ desc }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const profiles = {{ meta.crop_profiles | tojson }};
+const keyMap = {N:'N',P:'P',K:'K',temp:'Temperature',hum:'Humidity',ph:'pH',rain:'Rainfall'};
+const units   = {N:'mg/kg',P:'mg/kg',K:'mg/kg',temp:'°C',hum:'%',ph:'',rain:'mm'};
+
+document.querySelector('[name=crop]').addEventListener('change', function(){
+  const crop = this.value;
+  if (!profiles[crop]) return;
+  const p = profiles[crop];
+  document.getElementById('rangeLabel').textContent = crop;
+  const tbody = document.getElementById('rangeBody');
+  tbody.innerHTML = '';
+  for (const [k, label] of Object.entries(keyMap)){
+    const row = `<tr>
+      <td>${label} <small style="color:var(--text-muted);">${units[k]}</small></td>
+      <td><strong>${p[k][0]}</strong></td>
+      <td><strong>${p[k][1]}</strong></td>
+    </tr>`;
+    tbody.innerHTML += row;
+  }
+  document.getElementById('rangeCard').style.display = 'block';
+});
+
+// Auto-show if result present
+{% if result and not result.error %}
+document.querySelector('[name=crop]').dispatchEvent(new Event('change'));
+{% endif %}
+</script>
+{% endblock %}

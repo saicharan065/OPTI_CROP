@@ -1,0 +1,14 @@
+# Development dependencies for OptiCrop
+-r requirements.txt
+
+# Testing
+pytest>=8.0
+pytest-cov>=4.0
+
+# Code quality
+black>=24.0
+flake8>=6.0
+mypy>=1.0
+
+# Interactive development
+ipython>=8.0

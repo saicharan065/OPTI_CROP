@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+{% block title %}Research & Analytics{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <div class="d-flex align-items-center gap-3">
+      <div style="width:48px;height:48px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">📊</div>
+      <div>
+        <h1>Research & Policy Planning</h1>
+        <p>Crop-environment analytics for researchers, agribusinesses & policymakers</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-4">
+
+  <!-- KPI Row -->
+  <div class="row g-3 mb-4">
+    {% set kpis = [
+      ('bi-graph-up-arrow', meta.accuracy|string + '%', 'Best Model Accuracy', meta.best_model, 'var(--green-mid)'),
+      ('bi-flower1',        meta.crops|length|string,   'Crop Types Supported', 'Classification',  'var(--sky)'),
+      ('bi-sliders',        '7',                        'Input Parameters',     'Soil & Climate',  'var(--soil)'),
+      ('bi-cpu',            '4',                        'ML Algorithms',        'Compared',        '#7a3fa0'),
+    ] %}
+    {% for icon, val, label, sub, color in kpis %}
+    <div class="col-6 col-lg-3">
+      <div class="card-oc" style="border-top:3px solid {{ color }};">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:.6rem;">
+          <div style="width:36px;height:36px;background:{{ color }}1a;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+            <i class="bi {{ icon }}" style="color:{{ color }};font-size:1rem;"></i>
+          </div>
+        </div>
+        <div style="font-size:1.7rem;font-weight:700;color:var(--green-dark);">{{ val }}</div>
+        <div style="font-size:.82rem;font-weight:600;">{{ label }}</div>
+        <div style="font-size:.75rem;color:var(--text-muted);">{{ sub }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Model Comparison Chart -->
+    <div class="col-lg-6">
+      <div class="card-oc">
+        <div class="section-label mb-1">Model Performance</div>
+        <div style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem;">Accuracy · F1 Score · Cross-Validation</div>
+        <canvas id="modelChart" height="220"></canvas>
+      </div>
+    </div>
+
+    <!-- Feature Importance Chart -->
+    <div class="col-lg-6">
+      <div class="card-oc">
+        <div class="section-label mb-1">Feature Importances</div>
+        <div style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem;">Random Forest — contribution to predictions</div>
+        <canvas id="featureChart" height="220"></canvas>
+      </div>
+    </div>
+
+    <!-- Model Comparison Table -->
+    <div class="col-12">
+      <div class="card-oc">
+        <div class="section-label mb-3">Detailed Model Comparison</div>
+        <div class="table-responsive">
+          <table class="table table-oc mb-0">
+            <thead>
+              <tr>
+                <th>Algorithm</th>
+                <th>Accuracy</th>
+                <th>F1 Score</th>
+                <th>CV Score (5-fold)</th>
+                <th>Accuracy Bar</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for name, m in meta.model_metrics.items() if name != 'best_model' %}
+              {% set is_best = (name == meta.best_model) %}
+              <tr {% if is_best %}style="background:var(--green-pale);"{% endif %}>
+                <td>
+                  <div style="font-weight:600;">{{ name }}</div>
+                  {% if is_best %}<div style="font-size:.73rem;color:var(--green-mid);">▲ Selected for deployment</div>{% endif %}
+                </td>
+                <td><strong>{{ m.accuracy }}%</strong></td>
+                <td>{{ m.f1 }}%</td>
+                <td>{{ m.cv_score }}%</td>
+                <td style="min-width:120px;">
+                  <div class="oc-progress">
+                    <div class="oc-progress-bar" style="width:{{ m.accuracy }}%;background:{% if is_best %}var(--green-mid){% else %}var(--border){% endif %};"></div>
+                  </div>
+                </td>
+                <td>
+                  {% if is_best %}
+                  <span class="tag" style="background:var(--green-mid);color:#fff;">✓ Active</span>
+                  {% else %}
+                  <span class="tag">Evaluated</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Crop Parameter Ranges -->
+    <div class="col-lg-7">
+      <div class="card-oc">
+        <div class="section-label mb-1">Crop Environment Profiles</div>
+        <div style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem;">Ideal soil & climate ranges per crop</div>
+        <div style="max-height:420px;overflow-y:auto;">
+          <table class="table table-sm table-oc mb-0">
+            <thead style="position:sticky;top:0;background:#fff;z-index:1;">
+              <tr>
+                <th>Crop</th>
+                <th>N</th><th>P</th><th>K</th>
+                <th>Temp °C</th><th>Humid %</th><th>pH</th><th>Rain mm</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for crop, p in meta.crop_profiles.items() %}
+              <tr>
+                <td><strong>{{ crop }}</strong></td>
+                <td>{{ p.N[0] }}–{{ p.N[1] }}</td>
+                <td>{{ p.P[0] }}–{{ p.P[1] }}</td>
+                <td>{{ p.K[0] }}–{{ p.K[1] }}</td>
+                <td>{{ p.temp[0] }}–{{ p.temp[1] }}</td>
+                <td>{{ p.hum[0] }}–{{ p.hum[1] }}</td>
+                <td>{{ p.ph[0] }}–{{ p.ph[1] }}</td>
+                <td>{{ p.rain[0] }}–{{ p.rain[1] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- API Reference -->
+    <div class="col-lg-5">
+      <div class="card-oc">
+        <div class="section-label mb-3">🔌 JSON API Reference</div>
+        <div style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem;">Integrate OptiCrop predictions programmatically</div>
+        <div style="background:#0d1117;border-radius:8px;padding:1rem;font-family:monospace;font-size:.78rem;line-height:1.7;color:#e6edf3;overflow-x:auto;">
+          <span style="color:#79c0ff;">POST</span> <span style="color:#a5d6ff;">/api/predict</span><br>
+          <span style="color:#8b949e;">Content-Type: application/json</span><br><br>
+          <span style="color:#e6edf3;">{</span><br>
+          &nbsp;&nbsp;<span style="color:#79c0ff;">"N"</span>: <span style="color:#a5d6ff;">80</span>,<br>
+          &nbsp;&nbsp;<span style="color:#79c0ff;">"P"</span>: <span style="color:#a5d6ff;">45</span>,<br>
+          &nbsp;&nbsp;<span style="color:#79c0ff;">"K"</span>: <span style="color:#a5d6ff;">45</span>,<br>
+          &nbsp;&nbsp;<span style="color:#79c0ff;">"temperature"</span>: <span style="color:#a5d6ff;">25</span>,<br>
+          &nbsp;&nbsp;<span style="color:#79c0ff;">"humidity"</span>: <span style="color:#a5d6ff;">80</span>,<br>
+          &nbsp;&nbsp;<span style="color:#79c0ff;">"ph"</span>: <span style="color:#a5d6ff;">6.5</span>,<br>
+          &nbsp;&nbsp;<span style="color:#79c0ff;">"rainfall"</span>: <span style="color:#a5d6ff;">200</span><br>
+          <span style="color:#e6edf3;">}</span>
+        </div>
+        <div style="background:#0d1117;border-radius:8px;padding:1rem;font-family:monospace;font-size:.78rem;line-height:1.7;color:#e6edf3;overflow-x:auto;margin-top:.8rem;">
+          <span style="color:#8b949e;">// Response</span><br>
+          <span style="color:#e6edf3;">{</span><br>
+          &nbsp;&nbsp;<span style="color:#79c0ff;">"crop"</span>: <span style="color:#a5d6ff;">"Rice"</span>,<br>
+          &nbsp;&nbsp;<span style="color:#79c0ff;">"confidence"</span>: <span style="color:#a5d6ff;">91.4</span>,<br>
+          &nbsp;&nbsp;<span style="color:#79c0ff;">"top3"</span>: [<span style="color:#8b949e;">…</span>]<br>
+          <span style="color:#e6edf3;">}</span>
+        </div>
+        <hr class="divider">
+        <div class="section-label mb-2">Supported Endpoints</div>
+        <div class="d-flex flex-column gap-2">
+          {% for method, path, desc in [
+            ('GET',  '/',              'Home dashboard'),
+            ('POST', '/predict',       'Crop recommendation (form)'),
+            ('POST', '/suitability',   'Suitability assessment (form)'),
+            ('GET',  '/research',      'Analytics dashboard'),
+            ('POST', '/api/predict',   'JSON prediction API'),
+          ] %}
+          <div style="display:flex;gap:8px;align-items:center;font-size:.82rem;">
+            <span class="tag" style="{% if method=='POST' %}background:#fff8e8;color:#7a4e00;{% endif %}min-width:36px;text-align:center;">{{ method }}</span>
+            <code style="color:var(--green-dark);">{{ path }}</code>
+            <span style="color:var(--text-muted);">{{ desc }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /row -->
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const meta = {{ meta | tojson }};
+const palette = ['#2d7a4f','#4aad73','#e8a020','#2a8fc7','#7a3fa0','#c0392b','#1a4731'];
+
+// ── Model Comparison Chart ──
+(function(){
+  const names = [], acc = [], f1 = [], cv = [];
+  for (const [k,v] of Object.entries(meta.model_metrics)){
+    if (k === 'best_model') continue;
+    names.push(k); acc.push(v.accuracy); f1.push(v.f1); cv.push(v.cv_score);
+  }
+  new Chart(document.getElementById('modelChart'), {
+    type: 'bar',
+    data: {
+      labels: names,
+      datasets: [
+        { label:'Accuracy %', data:acc, backgroundColor:'#2d7a4f', borderRadius:5 },
+        { label:'F1 Score %', data:f1,  backgroundColor:'#4aad73', borderRadius:5 },
+        { label:'CV Score %', data:cv,  backgroundColor:'#b8dfc9', borderRadius:5 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { position:'bottom', labels:{ font:{size:11} } } },
+      scales: {
+        y: { min:70, max:100, ticks:{ callback:v=>v+'%' }, grid:{ color:'#f0f0f0' } },
+        x: { grid:{ display:false }, ticks:{ font:{size:11} } }
+      }
+    }
+  });
+})();
+
+// ── Feature Importance Chart ──
+(function(){
+  const fi = meta.feature_importances;
+  if (!fi || !Object.keys(fi).length) return;
+  const labels = Object.keys(fi).map(k=>({
+    N:'Nitrogen',P:'Phosphorous',K:'Potassium',
+    temperature:'Temperature',humidity:'Humidity',
+    ph:'pH',rainfall:'Rainfall'
+  }[k]||k));
+  const values = Object.values(fi);
+  new Chart(document.getElementById('featureChart'), {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{ data: values, backgroundColor: palette, borderWidth:2, borderColor:'#fff' }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: {
+        legend: { position:'right', labels:{ font:{size:11}, padding:10 } },
+        tooltip: { callbacks:{ label: ctx => ` ${ctx.label}: ${ctx.parsed.toFixed(1)}%` } }
+      }
+    }
+  });
+})();
+
+// Animate progress bars
+window.addEventListener('load', ()=>{
+  document.querySelectorAll('.oc-progress-bar').forEach(b=>{
+    const w = b.style.width; b.style.width='0';
+    setTimeout(()=>{ b.style.width=w; }, 150);
+  });
+});
+</script>
+{% endblock %}

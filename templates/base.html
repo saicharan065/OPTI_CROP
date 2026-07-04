@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}OptiCrop{% endblock %} — Smart Agricultural Optimization</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green-dark:  #1a4731;
+      --green-mid:   #2d7a4f;
+      --green-light: #4aad73;
+      --green-pale:  #e8f5ee;
+      --amber:       #e8a020;
+      --amber-pale:  #fff8e8;
+      --soil:        #7a5230;
+      --sky:         #2a8fc7;
+      --text:        #1c2b22;
+      --text-muted:  #5a7265;
+      --border:      #d4e6da;
+      --white:       #ffffff;
+      --surface:     #f7faf8;
+      --radius:      12px;
+      --shadow:      0 2px 12px rgba(26,71,49,.10);
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--surface);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    /* ── Navbar ── */
+    .navbar {
+      background: var(--green-dark);
+      padding: 0 2rem;
+      height: 64px;
+      box-shadow: 0 2px 16px rgba(0,0,0,.18);
+    }
+    .navbar-brand {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.35rem;
+      color: #fff !important;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .brand-icon {
+      width: 36px; height: 36px;
+      background: var(--green-light);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+    }
+    .navbar-nav .nav-link {
+      color: rgba(255,255,255,.75) !important;
+      font-size: .9rem;
+      font-weight: 500;
+      padding: 0 1rem;
+      height: 64px;
+      display: flex; align-items: center;
+      border-bottom: 3px solid transparent;
+      transition: all .2s;
+    }
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link.active {
+      color: #fff !important;
+      border-bottom-color: var(--green-light);
+    }
+    .navbar-nav .nav-link i { margin-right: 5px; font-size: 1rem; }
+    /* ── Page header ── */
+    .page-hero {
+      background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%);
+      color: #fff;
+      padding: 3rem 2rem;
+    }
+    .page-hero h1 { font-family:'Sora',sans-serif; font-size:2rem; margin:0; }
+    .page-hero p  { opacity:.8; margin:.5rem 0 0; }
+    /* ── Cards ── */
+    .card-oc {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem;
+    }
+    /* ── Form controls ── */
+    .form-label {
+      font-size: .8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .form-control, .form-select {
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: .95rem;
+      padding: .55rem .9rem;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--green-light);
+      box-shadow: 0 0 0 3px rgba(74,173,115,.18);
+      outline: none;
+    }
+    .input-icon-wrap { position: relative; }
+    .input-icon-wrap .bi {
+      position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+      color: var(--text-muted); font-size: 1rem; pointer-events: none;
+    }
+    .input-icon-wrap .form-control { padding-left: 2.1rem; }
+    /* ── Buttons ── */
+    .btn-oc {
+      background: var(--green-dark);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: .7rem 1.8rem;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-oc:hover  { background: var(--green-mid); color: #fff; }
+    .btn-oc:active { transform: scale(.97); }
+    .btn-oc-outline {
+      background: transparent;
+      color: var(--green-dark);
+      border: 1.5px solid var(--green-mid);
+      border-radius: 8px;
+      padding: .6rem 1.4rem;
+      font-weight: 600;
+      transition: all .2s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-oc-outline:hover { background: var(--green-pale); }
+    /* ── Result box ── */
+    .result-hero {
+      background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%);
+      border-radius: var(--radius);
+      color: #fff;
+      padding: 2rem;
+      text-align: center;
+    }
+    .result-icon { font-size: 4rem; margin-bottom: .5rem; }
+    .result-crop { font-family:'Sora',sans-serif; font-size: 2rem; }
+    .result-conf { opacity: .8; font-size: .95rem; margin-top: .3rem; }
+    .badge-prob {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--green-pale);
+      color: var(--green-dark);
+      border-radius: 6px;
+      padding: .4rem .8rem;
+      font-size: .85rem;
+      font-weight: 600;
+    }
+    /* ── Metric card ── */
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.2rem;
+      text-align: center;
+    }
+    .metric-label { font-size: .75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
+    .metric-value { font-size: 1.6rem; font-weight: 700; color: var(--green-dark); margin: 2px 0; }
+    .metric-sub   { font-size: .8rem; color: var(--text-muted); }
+    /* ── Progress bar ── */
+    .oc-progress { height: 8px; border-radius: 99px; background: var(--border); overflow: hidden; margin-top: 6px; }
+    .oc-progress-bar { height: 100%; border-radius: 99px; transition: width 1s ease; }
+    /* ── Table ── */
+    .table-oc th { font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); font-weight:600; border-bottom:2px solid var(--border); }
+    .table-oc td { font-size:.93rem; vertical-align: middle; border-color: var(--border); }
+    /* ── Alert ── */
+    .alert-oc {
+      border-radius: 10px;
+      border: none;
+      padding: 1rem 1.2rem;
+      font-size: .9rem;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .alert-oc i { font-size: 1.1rem; margin-top: 1px; flex-shrink: 0; }
+    .alert-success-oc { background: var(--green-pale); color: var(--green-dark); }
+    .alert-warn-oc    { background: var(--amber-pale);  color: #7a4e00; }
+    .alert-danger-oc  { background: #fdeaea; color: #7a1f1f; }
+    /* ── Suitability gauge ── */
+    .gauge-ring { position: relative; width: 140px; height: 140px; margin: 0 auto; }
+    .gauge-ring svg { transform: rotate(-90deg); }
+    .gauge-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+    .gauge-pct { font-size: 1.6rem; font-weight: 700; color: var(--green-dark); }
+    .gauge-txt { font-size: .75rem; color: var(--text-muted); }
+    /* ── Footer ── */
+    footer {
+      background: var(--green-dark);
+      color: rgba(255,255,255,.6);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: .82rem;
+      margin-top: 4rem;
+    }
+    footer span { color: #fff; }
+    /* ── Utility ── */
+    .section-label { font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); font-weight:600; margin-bottom:.6rem; }
+    .divider { border:none; border-top:1px solid var(--border); margin:1.5rem 0; }
+    .tag {
+      display: inline-block;
+      background: var(--green-pale);
+      color: var(--green-dark);
+      border-radius: 5px;
+      padding: 2px 8px;
+      font-size: .78rem;
+      font-weight: 600;
+    }
+    .spinner-oc {
+      width: 20px; height: 20px;
+      border: 2.5px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 768px) {
+      .page-hero h1 { font-size: 1.5rem; }
+      .navbar { padding: 0 1rem; }
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">
+        <div class="brand-icon">🌿</div>
+        OptiCrop
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu"
+              style="border-color:rgba(255,255,255,.3);">
+        <i class="bi bi-list" style="color:#fff;font-size:1.4rem;"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint=='index' %}active{% endif %}" href="/">
+              <i class="bi bi-house-door"></i>Home
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint=='predict' %}active{% endif %}" href="/predict">
+              <i class="bi bi-stars"></i>Recommend
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint=='suitability' %}active{% endif %}" href="/suitability">
+              <i class="bi bi-patch-check"></i>Suitability
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint=='research' %}active{% endif %}" href="/research">
+              <i class="bi bi-bar-chart-line"></i>Research
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  {% block content %}{% endblock %}
+
+  <footer>
+    OptiCrop &mdash; Smart Agricultural Production Optimization Engine &nbsp;|&nbsp;
+    Model: <span>{{ meta.best_model }}</span> &nbsp;|&nbsp;
+    Accuracy: <span>{{ meta.accuracy }}%</span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
