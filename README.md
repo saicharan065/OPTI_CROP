@@ -2,7 +2,7 @@
 
 OptiCrop is a full-stack machine learning web application that helps recommend the most suitable crop to grow based on soil and environmental conditions. It combines a trained ML model with a clean, responsive web interface to make data-driven crop recommendations accessible to farmers, students, and researchers alike.
 
-🔗 Live Demo: opti-crop-blue.vercel.app
+🔗 Live Demo: opti-crop-21mj28erl-s-sai-charans-projects.vercel.app
 
 
 📌 Overview
@@ -31,13 +31,47 @@ This repository is organized by project lifecycle phase, following an academic p
 
 OPTI_CROP/
 ├── 1. Brainstorming & Ideation.
+│   ├── Brainstorming & Idea Prioritization.pdf
+│   ├── Define Problem Statements.pdf
+│   └── Empathy Map.pdf
+│
 ├── 2. Requirement Analysis.
+│   ├── Customer Journey Map.pdf
+│   ├── Data Flow Diagram.pdf
+│   ├── Solution Requirements.pdf
+│   └── Technology Stack.pdf
+│
 ├── 3. Project Design Phase.
+│   ├── Problem-Solution Fit.pdf
+│   ├── Proposed Solution.pdf
+│   └── Solution Architecture.pdf
+│
 ├── 4. Project Planning Phase.
+│   ├── Project Planning.pdf
+│   └── project planning
+│
 ├── 5. Project Development Phase        # Core Flask app, ML model, templates
+│   ├── OptiCrop Smart Agricultural Pro.../   # Application source code
+│   ├── Code-Layout, Readability and R....pdf
+│   ├── Coding & Solution.pdf
+│   ├── No. of Functional Features Inclu....pdf
+│   └── README.md
+│
 ├── 6. Project Testing.
+│   └── Performance Testing.pdf
+│
 ├── 7. Project Documentation.
+│   ├── Project Executable Files.pdf
+│   ├── Sample Project Documentation....pdf
+│   └── project excutable files.
+│
 └── 8. Project Demonstration.           # Demo videos, walkthroughs
+    ├── Communication.pdf
+    ├── Demonstration of Proposed Fea....pdf
+    ├── Project Demo Planning.pdf
+    ├── Scalability & Future Plan.pdf
+    ├── Team Involvement in Demonstr....pdf
+    └── README.md
 
 
 ⚙️ Getting Started
@@ -55,8 +89,8 @@ bash# Clone the repository
 git clone https://github.com/saicharan065/OPTI_CROP.git
 cd OPTI_CROP
 
-# Navigate to the development phase folder
-cd "5. Project Development Phase"
+# Navigate to the application source folder
+cd "5. Project Development Phase/OptiCrop Smart Agricultural Pro..."
 
 # Install dependencies
 pip install -r requirements.txt
@@ -74,17 +108,10 @@ The crop recommendation model is a Random Forest Classifier trained using Scikit
 
 🎥 Demonstration
 
-Demo materials, including walkthrough videos and documentation, are available in the 8. Project Demonstration. folder.
+Demo materials, including walkthrough videos, communication docs, and scalability/future plans, are available in the 8. Project Demonstration. folder.
 
 
 👤 Author
 
-Sai Charan Samudrala
+Sai Charan
 B.Tech Computer Science, SRM University AP
-
-
-
-
-📄 License
-
-This project was developed for academic purposes as part of a college project submission.
