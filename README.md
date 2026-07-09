@@ -47,8 +47,7 @@ OPTI_CROP/
 │   └── Solution Architecture.pdf
 │
 ├── 4. Project Planning Phase.
-│   ├── Project Planning.pdf
-│   └── project planning
+│   └── Project Planning.pdf
 │
 ├── 5. Project Development Phase        # Core Flask app, ML model, templates
 │   ├── OptiCrop Smart Agricultural Pro.../   # Application source code
@@ -62,8 +61,7 @@ OPTI_CROP/
 │
 ├── 7. Project Documentation.
 │   ├── Project Executable Files.pdf
-│   ├── Sample Project Documentation....pdf
-│   └── project excutable files.
+│   └──Sample Project Documentation....pdf 
 │
 └── 8. Project Demonstration.           # Demo videos, walkthroughs
     ├── Communication.pdf
