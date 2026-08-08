@@ -2,7 +2,7 @@
 
 OptiCrop is a full-stack machine learning web application that helps recommend the most suitable crop to grow based on soil and environmental conditions. It combines a trained ML model with a clean, responsive web interface to make data-driven crop recommendations accessible to farmers, students, and researchers alike.
 
-🔗 **Live Demo:** [opti-crop-21mj28erl-s-sai-charans-projects.vercel.app](https://opti-crop-21mj28erl-s-sai-charans-projects.vercel.app/)
+🔗 **Live Demo:** [opti-crop-21mj28erl-s-sai-charans-projects.vercel.app](https://opti-crop-git-main-s-sai-charans-projects.vercel.app/)
 
 ---
 
